@@ -12,6 +12,7 @@ WORKDIR /opt/autoagora/bin
 
 COPY --from=build /root/app/autoagora-indexer-service /opt/autoagora/bin/
 ENV PATH=/opt/autoagora/bin:$PATH
+ENV INDEXER_SERVICE_QUERY_TIMING_LOGS=true
 
 # Run the indexer-service through the AutoAgora wrapper
 ENTRYPOINT ["autoagora-indexer-service"]
