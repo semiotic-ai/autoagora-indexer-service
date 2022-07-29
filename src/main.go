@@ -25,13 +25,13 @@ import (
 
 type Config struct {
 	Rabbitmq struct {
-		Host         string `required:"true" usage:"Hostname of the RabbitMQ server used for queuing the GQL logs."`
-		ExchangeName string `default:"gql_logs" usage:"Name of the RabbitMQ exchange query-node logs are pushed to."`
-		Username     string `default:"guest" usage:"Username to use for the GQL logs RabbitMQ queue."`
-		Password     string `default:"guest" usage:"Password to use for the GQL logs RabbitMQ queue."`
+		Host         string `required:"true" usage:"Hostname of the RabbitMQ server used for queuing the GQL logs.\n(env: RABBITMQ_HOST)"`
+		ExchangeName string `default:"gql_logs" usage:"Name of the RabbitMQ exchange query-node logs are pushed to.\n(env: RABBITMQ_EXCHANGE_NAME)"`
+		Username     string `default:"guest" usage:"Username to use for the GQL logs RabbitMQ queue.\n(env: RABBITMQ_USERNAME)"`
+		Password     string `default:"guest" usage:"Password to use for the GQL logs RabbitMQ queue.\n(env: RABBITMQ_PASSWORD)"`
 	}
-	MaxCacheLines int    `default:"100" usage:"Maximum number of log lines to cache locally."`
-	LogLevel      string `default:"warn" usage:"Log level. Must be \"trace\", \"debug\", \"info\", \"warn\", \"error\", \"fatal\" or \"panic\""`
+	MaxCacheLines int    `default:"100" usage:"Maximum number of log lines to cache locally.\n(env: MAX_CACHE_LINES)"`
+	LogLevel      string `default:"warn" usage:"Log level. Must be \"trace\", \"debug\", \"info\", \"warn\", \"error\", \"fatal\" or \"panic\".\n(env: LOG_LEVEL)"`
 }
 
 // To accomodate long log lines. Lines longer that this will be discarded.
