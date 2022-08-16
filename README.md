@@ -20,7 +20,9 @@ compiled into a Makefile.
 It will build 2 containers:
 
 - `indexer-service:v0.19.3-querylogspatch`: The patched `indexer-service`.
-- `autoagora-indexer-service:v0.19.3`: The AutoAgora-wrapped `indexer-service`.
+- `autoagora-indexer-service:v0.1.1-0.19.3`: The AutoAgora-wrapped `indexer-service`.
+  
+  Where the version is of the form `{autoagora-indexer-service version}-{indexer-service version}`.
 
 ```sh
 make
