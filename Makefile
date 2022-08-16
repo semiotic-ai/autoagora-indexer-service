@@ -3,7 +3,7 @@ AUTOAGORA_INDEXER_SERVICE_VERSION:=$(shell git tag)
 
 build: build-indexer-service
 	docker build \
-		-t autoagora-indexer-service:v${AUTOAGORA_INDEXER_SERVICE_VERSION}-${INDEXER_SERVICE_VERSION} \
+		-t autoagora-indexer-service:${AUTOAGORA_INDEXER_SERVICE_VERSION}-${INDEXER_SERVICE_VERSION} \
 		.
 
 prepare-submodules:
