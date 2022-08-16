@@ -6,7 +6,7 @@ RUN go build -ldflags="-s -w" -o autoagora-indexer-service ./src
 
 ########################################################################################
 
-FROM us.gcr.io/graph-indexer-semiotic/indexer-service:v0.19.3-querylogspatch
+FROM indexer-service:v0.19.3-querylogspatch
 
 WORKDIR /opt/autoagora/bin
 
