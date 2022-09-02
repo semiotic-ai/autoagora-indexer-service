@@ -9,23 +9,19 @@ them to the
 through RabbitMQ.
 All the other logs are sent back to `stdout`.
 
-Note that for now, this relies on a patched `indexer-service` v0.19.3 that generates the
+Works only with `indexer-service` v0.20.1+, which generates the
 logs that are needed for AutoAgora (see [indexer-service PR #428](https://github.com/graphprotocol/indexer/pull/428)).
 
 ## Building
 
-To make the container build less error prone, the process of pulling the `indexer` git submodule, building it, then building the AutoAgora indexer-service on top, is
-compiled into a Makefile.
+We suggest an image tag of the form
+`autoagora-indexer-service:{autoagora-indexer-service version}-{indexer-service version}`.
 
-It will build 2 containers:
-
-- `indexer-service:v0.19.3-querylogspatch`: The patched `indexer-service`.
-- `autoagora-indexer-service:v0.1.1-0.19.3`: The AutoAgora-wrapped `indexer-service`.
-  
-  Where the version is of the form `{autoagora-indexer-service version}-{indexer-service version}`.
+The Dockerfile builds on top of `ghcr.io/graphprotocol/indexer-service:latest` by default. You can specify a particular
+tag using Docker build's `--build-arg` option such as below:
 
 ```sh
-make
+docker build --build-arg "INDEXER_SERVICE_TAG=v0.20.3" -t autoagora-indexer-service:v0.1.2-0.20.3 .
 ```
 
 ## Usage
