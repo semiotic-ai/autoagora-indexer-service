@@ -20,6 +20,8 @@ RUN chown -R indexer:indexer /var/lib/indexer
 WORKDIR /opt/autoagora/bin
 
 COPY --from=build /root/app/autoagora-indexer-service /opt/autoagora/bin/
+
+USER indexer:indexer
 ENV PATH=/opt/autoagora/bin:$PATH
 ENV INDEXER_SERVICE_QUERY_TIMING_LOGS=true
 
