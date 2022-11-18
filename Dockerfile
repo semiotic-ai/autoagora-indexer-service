@@ -4,7 +4,7 @@ FROM golang:1.18-bullseye as build
 
 WORKDIR /root/app
 COPY . .
-RUN go build -ldflags="-s -w" -o autoagora-indexer-service ./src
+RUN go build -buildvcs=false -ldflags="-s -w" -o autoagora-indexer-service ./src
 
 ########################################################################################
 
