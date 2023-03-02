@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        indexer-version: [0.20.8, 0.20.11]
+        indexer-version: [0.20.8, 0.20.11, 0.20.12]
 
     steps:
       - uses: actions/checkout@v3
