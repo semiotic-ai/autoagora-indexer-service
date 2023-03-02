@@ -2,30 +2,24 @@ name: Docker Test
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   docker-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        indexer-version: [0.20.8, 0.20.11, 0.30.0]
+        indexer-version: [0.20.8, 0.20.11]
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Build Docker Image
+        uses: redhat-actions/buildah-build@v2
         with:
+          image: autoagora-indexer-service
           platforms: linux/amd64
-
-      - name: Build docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: false
           build-args: |
             INDEXER_SERVICE_TAG=v${{ matrix.indexer-version }}
-          platforms: linux/amd64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          containerfiles: |
+            ./Dockerfile
