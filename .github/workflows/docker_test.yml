@@ -1,0 +1,25 @@
+name: Docker Test
+
+on:
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        indexer-version: [0.20.8, 0.20.11, 0.20.12]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker Image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: autoagora-indexer-service
+          platforms: linux/amd64
+          build-args: |
+            INDEXER_SERVICE_TAG=v${{ matrix.indexer-version }}
+          containerfiles: |
+            ./Dockerfile
