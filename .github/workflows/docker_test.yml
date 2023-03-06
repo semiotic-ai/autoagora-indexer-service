@@ -5,11 +5,14 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
+  get-latest-versions:
+    uses: ./.github/workflows/fetch_latest_versions.yml
+
   docker-test:
+    needs: get-latest-versions
     strategy:
       matrix:
-        indexer-version: [0.20.8, 0.20.11, 0.20.12]
+        indexer-version: ${{ fromJson(needs.get-latest-versions.outputs.versions) }}
     uses: ./.github/workflows/docker_build.yml
     with:
       indexer-version: ${{ matrix.indexer-version }}
-      

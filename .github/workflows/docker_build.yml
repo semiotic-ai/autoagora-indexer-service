@@ -21,7 +21,6 @@ jobs:
           image: autoagora-indexer-service
           platforms: linux/amd64
           build-args: |
-            INDEXER_SERVICE_TAG=v${{ inputs.indexer-version }}
+            INDEXER_SERVICE_TAG=${{ inputs.indexer-version }}
           containerfiles: |
             ./Dockerfile
-            

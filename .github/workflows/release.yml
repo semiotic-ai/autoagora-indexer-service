@@ -26,20 +26,22 @@ jobs:
         with:
           additional_options: --github
           github_token: ${{ secrets.GITHUB_TOKEN }}
+  
+  get-latest-versions:
+    uses: ./.github/workflows/fetch_latest_versions.yml
 
   docker-release:
-    needs: semantic-release
-    # if: needs.semantic-release.outputs.published == 'True'
+    needs: [semantic-release, get-latest-versions]
+    if: needs.semantic-release.outputs.published == 'True'
     permissions:
       packages: write
     strategy:
       matrix:
-        indexer-version: [0.20.8, 0.20.11, 0.20.12]
+        indexer-version: ${{ fromJson(needs.get-latest-versions.outputs.versions) }}
     uses: ./.github/workflows/docker_build_release.yml
     with:
       indexer-version: ${{ matrix.indexer-version }}
-      # version: ${{ needs.semantic-release.outputs.published_version }}
-      version: 0.0.1
+      version: ${{ needs.semantic-release.outputs.published_version }}
       org-name: ${{ vars.ORG_NAME }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
