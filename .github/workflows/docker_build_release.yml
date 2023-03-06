@@ -1,0 +1,51 @@
+name: Docker Build and Release
+
+on:
+  workflow_call:
+    inputs:
+      indexer-version:
+        description: 'The indexer version to build'
+        required: true
+        type: string
+      version:
+        description: 'Current autoagora-indexer-service version'
+        required: true
+        type: string
+      org-name:
+        description: 'The organization name. If not provided, release will not be triggered.'
+        required: true
+        type: string
+    secrets:
+      token:
+        required: true
+
+jobs:
+  docker-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker Image
+        uses: redhat-actions/buildah-build@v2
+        id: build-image
+        with:
+          image: autoagora-indexer-service
+          platforms: linux/amd64
+          tags: v${{ inputs.version }}-${{ inputs.indexer-version }}
+          build-args: |
+            INDEXER_SERVICE_TAG=v${{ inputs.indexer-version }}
+          containerfiles: |
+            ./Dockerfile
+            
+      - name: Push Docker Image
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io/${{ inputs.org-name }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.token }}
+
+      - name: Print the image url
+        run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}"

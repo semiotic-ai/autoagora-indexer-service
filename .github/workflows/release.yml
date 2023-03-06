@@ -28,7 +28,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
   docker-release:
-    runs-on: ubuntu-latest
     needs: semantic-release
     # if: needs.semantic-release.outputs.published == 'True'
     permissions:
@@ -36,32 +35,11 @@ jobs:
     strategy:
       matrix:
         indexer-version: [0.20.8, 0.20.11, 0.20.12]
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Build Docker Image
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: autoagora-indexer-service
-          tags: v${{ needs.semantic-release.outputs.published_version }}-${{ matrix.indexer-version }}
-          platforms: linux/amd64
-          build-args: |
-            INDEXER_SERVICE_TAG=v${{ matrix.indexer-version }}
-          containerfiles: |
-            ./Dockerfile
-
-      - name: Push
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          registry: ghcr.io/${{ vars.ORG_NAME }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Print image url
-        run: echo "Image pushed to ${{ steps.push-to-ghcr.outputs.registry-paths }}"
+    uses: ./.github/workflows/docker_build_release.yml
+    with:
+      indexer-version: ${{ matrix.indexer-version }}
+      # version: ${{ needs.semantic-release.outputs.published_version }}
+      version: 0.0.1
+      org-name: ${{ vars.ORG_NAME }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
