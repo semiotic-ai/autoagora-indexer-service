@@ -1,0 +1,39 @@
+name: 'Fetch unpublished tags'
+description: 'This actions fetches all unpublished tags'
+inputs:
+  indexer-repo-path:
+    description: 'The path to the indexer repo'
+    required: true
+  version:
+    description: 'autoagora-indexer-service version'
+    required: false
+outputs:
+  tags:
+    description: 'The unpublished tags'
+    value: ${{ steps.get_diff.outputs.tags }}
+runs:
+  using: "composite"
+  steps:
+    - name: Get the latest package versions
+      id: fetch-package-versions
+      run: |
+        echo "versions=$(skopeo list-tags docker://ghcr.io/nut-a/autoagora-indexer-service | jq -r -c '.Tags')" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Get the latest indexer versions
+      id: get-latest-indexer-versions
+      run: |
+        cd ${{ inputs.indexer-repo-path }}
+        echo "versions=$(git tag --sort=-creatordate --format='%(refname:short)' | awk 'BEGIN { printf "[" } { if (NR<=5) { printf "\"%s\"", $0; if (NR != 5) printf "," } } END { printf "]" }')" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Print the versions
+      id: print-output
+      run: |
+        echo "The latest package versions are ${{ steps.fetch-package-versions.outputs.versions }}"
+        echo "The latest indexer versions are ${{ steps.get-latest-indexer-versions.outputs.versions }}"
+      shell: bash
+    - name: Get the diff
+      id: get_diff
+      run: |
+        tags=$(python ${{ github.action_path }}/version_list_diff.py '${{ steps.get-latest-indexer-versions.outputs.versions }}' '${{ steps.fetch-package-versions.outputs.versions }}' '${{ inputs.version }}')
+        echo "tags=$tags" >> $GITHUB_OUTPUT
+      shell: bash
