@@ -5,21 +5,14 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
+  get-latest-versions:
+    uses: ./.github/workflows/fetch_latest_versions.yml
+
   docker-test:
-    runs-on: ubuntu-latest
+    needs: get-latest-versions
     strategy:
       matrix:
-        indexer-version: [0.20.8, 0.20.11, 0.20.12]
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Build Docker Image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: autoagora-indexer-service
-          platforms: linux/amd64
-          build-args: |
-            INDEXER_SERVICE_TAG=v${{ matrix.indexer-version }}
-          containerfiles: |
-            ./Dockerfile
+        indexer-version: ${{ fromJson(needs.get-latest-versions.outputs.versions) }}
+    uses: ./.github/workflows/docker_build.yml
+    with:
+      indexer-version: ${{ matrix.indexer-version }}

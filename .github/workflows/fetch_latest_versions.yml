@@ -1,0 +1,27 @@
+name: Fetch Latest Versions
+
+on:
+  workflow_call:
+    outputs:
+      versions:
+        description: 'The latest indexer versions'
+        value: ${{ jobs.docker-build.outputs.versions }}
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.get-latest-indexer-versions.outputs.versions }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: graphprotocol/indexer
+
+      - name: Get Latest Indexer Versions
+        id: get-latest-indexer-versions
+        run: |
+          echo "versions=$(git tag --sort=-creatordate --format='%(refname:short)' | awk 'BEGIN { printf "[" } { if (NR<=5) { printf "\"%s\"", $0; if (NR != 5) printf "," } } END { printf "]" }')" >> $GITHUB_OUTPUT
+      
+      - name: Print the image url
+        run: echo "The latest indexer versions are ${{ steps.get-latest-indexer-versions.outputs.versions }}"
