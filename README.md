@@ -21,7 +21,7 @@ The Dockerfile builds on top of `ghcr.io/graphprotocol/indexer-service:latest` b
 tag using Docker build's `--build-arg` option such as below:
 
 ```sh
-docker build --build-arg "INDEXER_SERVICE_TAG=v0.20.3" -t autoagora-indexer-service:v0.1.2-0.20.3 .
+docker build --build-arg "INDEXER_SERVICE_TAG=v0.20.3" -t autoagora-indexer-service:v0.1.2-v0.20.3 .
 ```
 
 ## Usage
