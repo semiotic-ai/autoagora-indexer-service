@@ -1,0 +1,41 @@
+name: 'Calculate release versions'
+description: 'This actions calculates release and diff versions for the release workflow'
+inputs:
+  published_version:
+    description: 'The published version'
+    required: false
+  current_version:
+    description: 'The current version'
+    required: false
+outputs:
+  version:
+    description: 'The release version. Published or current.'
+    value: ${{ steps.get-version.outputs.version }}
+  diff_version:
+    description: 'The version used for package diff.'
+    value: ${{ steps.get-version.outputs.diff_version }}
+runs:
+  using: "composite"
+  steps:
+    - name: Calculate version
+      shell: bash
+      id: get-version
+      run: |
+        published_version=${{ inputs.published_version }}
+        current_version=${{ inputs.current_version }}
+
+        if [ -z "$published_version" ]; then
+          version=$current_version
+        else
+          version=$published_version
+        fi
+        
+        diff_version="$version"
+
+        if [ -z "$version" ]; then
+          echo "::error ::Cannot determine version."
+          exit 1
+        fi
+
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "diff_version=$diff_version" >> $GITHUB_OUTPUT 
