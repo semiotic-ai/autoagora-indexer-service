@@ -30,7 +30,12 @@ runs:
           version=$published_version
         fi
         
-        diff_version="$version"
+        if [ ${{ github.event_name }} = "workflow_dispatch" ]; then
+          diff_version=""
+        else
+          diff_version=$current_version
+        fi
+
 
         if [ -z "$version" ]; then
           echo "::error ::Cannot determine version."

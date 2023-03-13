@@ -6,6 +6,7 @@ on:
       - master
   schedule:
     - cron: '28 * * * *'
+  workflow_dispatch:
 
 jobs:
   semantic-release:
