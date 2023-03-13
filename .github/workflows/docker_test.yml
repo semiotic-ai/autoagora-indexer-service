@@ -7,8 +7,6 @@ on:
 jobs:
   get-latest-versions:
     uses: ./.github/workflows/fetch_latest_versions.yml
-    with:
-      org-name: ${{ vars.ORG_NAME }}
 
   docker-test:
     needs: get-latest-versions

@@ -1,0 +1,19 @@
+name: "Transform input to lowercase"
+description: "This action transforms the input to lowercase"
+inputs:
+  text:
+    description: 'The input to transform to lowercase'
+    required: true
+outputs:
+  lowercased:
+    description: 'The lowercased input'
+    value: ${{ steps.lowercase.outputs.result }}
+runs:
+  using: "composite"
+  steps:
+    - name: Transform to lowercase
+      id: lowercase
+      run: |
+        result=$(echo ${{ inputs.text }} | tr '[:upper:]' '[:lower:]')
+        echo "result=$result" >> $GITHUB_OUTPUT
+      shell: bash

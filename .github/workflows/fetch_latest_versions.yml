@@ -9,30 +9,36 @@ on:
         description: 'The current autoagora-indexer-service version. If not provided, all versions will be returned.'
         required: false
         type: string
-      org-name:
-        description: 'The organization name.'
-        required: true
-        type: string
     outputs:
       versions:
         description: 'Indexer versions to publish'
         value: ${{ jobs.fetch-versions.outputs.tags }}
+      org-name:
+        description: 'The organization name.'
+        value: ${{ jobs.fetch-versions.outputs.repo-owner }}
 
 jobs:
   fetch-versions:
     runs-on: ubuntu-latest
     outputs:
       tags: ${{ steps.get-unpublished-tags.outputs.tags }}
+      repo-owner: ${{ steps.to_lowercase.outputs.lowercased }}
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
+
+      - name: Get package owner
+        id: to_lowercase
+        uses: ./.github/actions/to_lowercase
+        with:
+          text: ${{ github.repository_owner }}
 
       - name: Fetch unpublished tags
         uses: ./.github/actions/get_unpublished_tags
         id: get-unpublished-tags
         with:
           version: ${{ inputs.autoagora-indexer-service-version }}
-          org-name: ${{ inputs.org-name }}
+          org-name: ${{ steps.to_lowercase.outputs.lowercased }}
       
       - name: Print the unpublished tags
         run: echo "The unpublished tags are ${{ steps.get-unpublished-tags.outputs.tags }}"
