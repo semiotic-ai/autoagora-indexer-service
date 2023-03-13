@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       org-name:
-        description: 'The organization name. If not provided, release will not be triggered.'
+        description: 'The organization name.'
         required: true
         type: string
     secrets:

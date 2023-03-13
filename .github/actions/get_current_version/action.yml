@@ -1,0 +1,23 @@
+name: 'Get current repo version'
+description: 'This actions fetches the current repo version'
+outputs:
+  version:
+    description: 'The current repo version'
+    value: ${{ steps.get-version.outputs.version }}
+runs:
+  using: "composite"
+  steps:
+    - name: Install python-semantic-release
+      run: pip install python-semantic-release==7.33.2
+      shell: bash
+    - name: Get current version
+      id: get-version
+      run: |
+        import os
+        from semantic_release import history
+
+        version = history.get_current_version()
+
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+            print(f'version={version}', file=fh)
+      shell: python

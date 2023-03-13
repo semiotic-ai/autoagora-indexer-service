@@ -9,6 +9,10 @@ on:
         description: 'The current autoagora-indexer-service version. If not provided, all versions will be returned.'
         required: false
         type: string
+      org-name:
+        description: 'The organization name.'
+        required: true
+        type: string
     outputs:
       versions:
         description: 'Indexer versions to publish'
@@ -22,22 +26,13 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
-        with:
-          path: repo
-
-      - name: Checkout the indexer repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          repository: graphprotocol/indexer
-          path: indexer
 
       - name: Fetch unpublished tags
-        uses: ./repo/.github/actions/get_unpublished_tags
+        uses: ./.github/actions/get_unpublished_tags
         id: get-unpublished-tags
         with:
-          indexer-repo-path: indexer
           version: ${{ inputs.autoagora-indexer-service-version }}
+          org-name: ${{ inputs.org-name }}
       
       - name: Print the unpublished tags
         run: echo "The unpublished tags are ${{ steps.get-unpublished-tags.outputs.tags }}"

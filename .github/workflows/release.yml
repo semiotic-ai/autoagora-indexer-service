@@ -5,7 +5,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '0 * * * *'
+    - cron: '28 * * * *'
 
 jobs:
   semantic-release:
@@ -22,6 +22,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get current Version
+        id: get-current-version
+        uses: ./.github/actions/get_current_version
+
       - name: Python Semantic Release
         id: release
         uses: tumaysem/python-semantic-release@master
@@ -36,7 +40,7 @@ jobs:
         uses: ./.github/actions/calculate_release_versions
         with:
           published_version: ${{ steps.release.outputs.published_version }}
-          current_version: ${{ steps.release.outputs.current_version }}       
+          current_version: ${{ steps.get-current-version.outputs.version }}       
 
       - name: Print version
         run: |
@@ -48,6 +52,7 @@ jobs:
     uses: ./.github/workflows/fetch_latest_versions.yml
     with:
       autoagora-indexer-service-version: ${{ needs.semantic-release.outputs.diff_version }}
+      org-name: ${{ vars.ORG_NAME }}
 
   docker-release:
     needs: [semantic-release, get-latest-versions]
