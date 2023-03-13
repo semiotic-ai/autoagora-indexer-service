@@ -40,5 +40,8 @@ jobs:
           version: ${{ inputs.autoagora-indexer-service-version }}
           org-name: ${{ steps.to_lowercase.outputs.lowercased }}
       
+      - name: Print the repo owner
+        run: echo "The repo owner is ${{ steps.to_lowercase.outputs.lowercased }}"
+
       - name: Print the unpublished tags
         run: echo "The unpublished tags are ${{ steps.get-unpublished-tags.outputs.tags }}"

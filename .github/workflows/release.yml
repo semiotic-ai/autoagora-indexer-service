@@ -6,11 +6,13 @@ on:
       - master
   schedule:
     - cron: '28 * * * *'
+  workflow_dispatch:
 
 jobs:
   semantic-release:
     runs-on: ubuntu-latest
     concurrency: release
+    if: github.ref == 'refs/heads/master'
     permissions:
       contents: write
     outputs:
@@ -65,6 +67,6 @@ jobs:
     with:
       indexer-version: ${{ matrix.indexer-version }}
       version: ${{ needs.semantic-release.outputs.version }}
-      org-name: ${{ needs.semantic-release.outputs.org-name }}}
+      org-name: ${{ needs.get-latest-versions.outputs.org-name }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
