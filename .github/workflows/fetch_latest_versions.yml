@@ -1,27 +1,44 @@
 name: Fetch Latest Versions
+# This workflow fetches the latest 5 indexer versions from the indexer repo
+# and optionally filters all already published versions
 
 on:
   workflow_call:
+    inputs:
+      autoagora-indexer-service-version:
+        description: 'The current autoagora-indexer-service version. If not provided, all versions will be returned.'
+        required: false
+        type: string
     outputs:
       versions:
-        description: 'The latest indexer versions'
-        value: ${{ jobs.docker-build.outputs.versions }}
+        description: 'Indexer versions to publish'
+        value: ${{ jobs.fetch-versions.outputs.tags }}
+      org-name:
+        description: 'The organization name.'
+        value: ${{ jobs.fetch-versions.outputs.repo-owner }}
 
 jobs:
-  docker-build:
+  fetch-versions:
     runs-on: ubuntu-latest
     outputs:
-      versions: ${{ steps.get-latest-indexer-versions.outputs.versions }}
+      tags: ${{ steps.get-unpublished-tags.outputs.tags }}
+      repo-owner: ${{ steps.to_lowercase.outputs.lowercased }}
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          repository: graphprotocol/indexer
+      - name: Checkout the repo
+        uses: actions/checkout@v3
 
-      - name: Get Latest Indexer Versions
-        id: get-latest-indexer-versions
-        run: |
-          echo "versions=$(git tag --sort=-creatordate --format='%(refname:short)' | awk 'BEGIN { printf "[" } { if (NR<=5) { printf "\"%s\"", $0; if (NR != 5) printf "," } } END { printf "]" }')" >> $GITHUB_OUTPUT
+      - name: Get package owner
+        id: to_lowercase
+        uses: ./.github/actions/to_lowercase
+        with:
+          text: ${{ github.repository_owner }}
+
+      - name: Fetch unpublished tags
+        uses: ./.github/actions/get_unpublished_tags
+        id: get-unpublished-tags
+        with:
+          version: ${{ inputs.autoagora-indexer-service-version }}
+          org-name: ${{ steps.to_lowercase.outputs.lowercased }}
       
-      - name: Print the image url
-        run: echo "The latest indexer versions are ${{ steps.get-latest-indexer-versions.outputs.versions }}"
+      - name: Print the unpublished tags
+        run: echo "The unpublished tags are ${{ steps.get-unpublished-tags.outputs.tags }}"

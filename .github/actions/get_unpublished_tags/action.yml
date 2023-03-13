@@ -1,0 +1,41 @@
+name: 'Fetch unpublished tags'
+description: 'This actions fetches all unpublished tags'
+inputs:
+  version:
+    description: 'autoagora-indexer-service version'
+    required: false
+  org-name:
+    description: 'The organization name.'
+    required: true
+outputs:
+  tags:
+    description: 'The unpublished tags'
+    value: ${{ steps.get_diff.outputs.tags }}
+runs:
+  using: "composite"
+  steps:
+    - name: Get current Version
+      id: fetch-package-versions
+      uses: ./.github/actions/get_released_packages
+      with:
+        repo: ghcr.io/${{ inputs.org-name }}/autoagora-indexer-service
+        version-re: '^v\\d+\\.\\d+\\.\\d+-v\\d+\\.\\d+\\.\\d+$'
+    - name: Get the latest indexer versions
+      id: get-latest-indexer-versions
+      uses: ./.github/actions/get_released_packages
+      with:
+        repo: ghcr.io/graphprotocol/indexer-service
+        version-re: '^v\\d+\\.\\d+\\.\\d+$'
+        count: 5
+    - name: Print the versions
+      id: print-output
+      run: |
+        echo "The latest package versions are ${{ steps.fetch-package-versions.outputs.versions }}"
+        echo "The latest indexer versions are ${{ steps.get-latest-indexer-versions.outputs.versions }}"
+      shell: bash
+    - name: Get the diff
+      id: get_diff
+      run: |
+        tags=$(python ${{ github.action_path }}/version_list_diff.py '${{ steps.get-latest-indexer-versions.outputs.versions }}' '${{ steps.fetch-package-versions.outputs.versions }}' '${{ inputs.version }}')
+        echo "tags=$tags" >> $GITHUB_OUTPUT
+      shell: bash

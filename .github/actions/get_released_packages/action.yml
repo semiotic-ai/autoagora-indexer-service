@@ -1,0 +1,46 @@
+name: 'Get a repo released packages'
+description: 'This actions fetches latest released package versions, sortes it and optionally take the first n'
+inputs:
+  repo:
+    description: 'The repo to fetch the versions from'
+    required: true
+  version-re:
+    description: 'The version regex'
+    required: false
+    default: '.*'
+  count:
+    description: 'The number of versions to return'
+    required: false
+    default: ""
+outputs:
+  versions:
+    description: 'The released package versions'
+    value: ${{ steps.get-versions.outputs.versions }}
+runs:
+  using: "composite"
+  steps:
+    - name: Get the latest package versions
+      id: fetch-package-versions
+      shell: bash
+      run: |
+        echo "versions=$(skopeo list-tags docker://${{ inputs.repo }} | jq -r -c '.Tags | map(select(test("${{ inputs.version-re }}")))')" >> $GITHUB_OUTPUT
+    - name: Sort and slice versions
+      shell: python
+      id: get-versions
+      run: |
+        import os
+        import json
+        import re
+        from distutils.version import LooseVersion
+
+        versions = json.loads('${{ steps.fetch-package-versions.outputs.versions }}')
+        sorted_versions = sorted(versions, key=lambda x: [LooseVersion(re.sub('[^0-9.]', '', v)) for v in x.split('-')], reverse=True)
+        
+        try:
+            count_int = int('${{ inputs.count }}')
+            sorted_versions = sorted_versions[:count_int]
+        except ValueError:
+            print("Parsing count to int failed.")
+
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+            print(f'versions={json.dumps(sorted_versions)}', file=fh)

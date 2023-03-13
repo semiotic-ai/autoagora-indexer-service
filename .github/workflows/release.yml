@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+  schedule:
+    - cron: '28 * * * *'
 
 jobs:
   semantic-release:
@@ -12,13 +14,17 @@ jobs:
     permissions:
       contents: write
     outputs:
-      published: ${{ steps.release.outputs.published }}
-      published_version: ${{ steps.release.outputs.published_version }}
+      version: ${{ steps.get-version.outputs.version }}
+      diff_version: ${{ steps.get-version.outputs.diff_version }}
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Get current Version
+        id: get-current-version
+        uses: ./.github/actions/get_current_version
 
       - name: Python Semantic Release
         id: release
@@ -26,13 +32,30 @@ jobs:
         with:
           additional_options: --github
           github_token: ${{ secrets.GITHUB_TOKEN }}
-  
+
+      - uses: actions/checkout@v3
+      
+      - name: Calculate version
+        id: get-version
+        uses: ./.github/actions/calculate_release_versions
+        with:
+          published_version: ${{ steps.release.outputs.published_version }}
+          current_version: ${{ steps.get-current-version.outputs.version }}       
+
+      - name: Print version
+        run: |
+          echo "Version: ${{ steps.get-version.outputs.version }}"
+          echo "Diff version: ${{ steps.get-version.outputs.diff_version }}"
+
   get-latest-versions:
+    needs: semantic-release
     uses: ./.github/workflows/fetch_latest_versions.yml
+    with:
+      autoagora-indexer-service-version: ${{ needs.semantic-release.outputs.diff_version }}
 
   docker-release:
     needs: [semantic-release, get-latest-versions]
-    if: needs.semantic-release.outputs.published == 'True'
+    if: ${{ needs.get-latest-versions.outputs.versions != '[]' }}
     permissions:
       packages: write
     strategy:
@@ -41,7 +64,7 @@ jobs:
     uses: ./.github/workflows/docker_build_release.yml
     with:
       indexer-version: ${{ matrix.indexer-version }}
-      version: ${{ needs.semantic-release.outputs.published_version }}
-      org-name: ${{ vars.ORG_NAME }}
+      version: ${{ needs.semantic-release.outputs.version }}
+      org-name: ${{ needs.semantic-release.outputs.org-name }}}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
