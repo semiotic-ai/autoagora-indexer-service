@@ -66,6 +66,6 @@ jobs:
     with:
       indexer-version: ${{ matrix.indexer-version }}
       version: ${{ needs.semantic-release.outputs.version }}
-      org-name: ${{ needs.semantic-release.outputs.org-name }}}
+      org-name: ${{ needs.get-latest-versions.outputs.org-name }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
